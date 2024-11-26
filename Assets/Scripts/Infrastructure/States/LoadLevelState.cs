@@ -1,4 +1,6 @@
-﻿using Infrastructure.Factory;
+﻿using Base;
+using Infrastructure.Factory;
+using Unity.AI.Navigation;
 using UnityEditor.SceneTemplate;
 using UnityEngine;
 using UnityEngine.UI;
@@ -8,6 +10,7 @@ namespace Infrastructure.States
     public class LoadLevelState : IPayloadedState<string>
     {
         private const string InitialPointTag = "InitialPoint";
+        private const string Surface = "Surface";
         private readonly GameStateMachine _gameStateMachine;
         private readonly SceneLoader _sceneLoader;
         private readonly IGameFactory _gameFactory;
@@ -26,14 +29,27 @@ namespace Infrastructure.States
 
         private void OnLoaded()
         {
-            if (Camera.main != null)
-            {
-                var handler = _gameFactory.CreateCameraHandler();
-                Camera.main.transform.SetParent(handler.transform);
-            }
+            
+            var handler = _gameFactory.CreateCameraHandler();
+            Camera.main!.transform.SetParent(handler.transform);
+            
+            Vector3 initialPoint = GameObject.FindWithTag(InitialPointTag).transform.position;
+            RenderFirstBase(initialPoint);
+            
+            _gameFactory.CreateOreGenerator();
 
-            Vector3 initialPoint = new Vector3 (0,0,0);
-            _gameFactory.CreateBase(at: initialPoint);
+            _gameFactory.CreateConstructHandler();
+        }
+
+        private void RenderFirstBase(Vector3 initialPoint)
+        {
+            GameObject firstBase = _gameFactory.CreateBase(at: initialPoint);
+            GameObject.FindWithTag(Surface).GetComponent<NavMeshSurface>().BuildNavMesh();
+            BaseManager baseManager = firstBase.GetComponent<BaseManager>();
+            baseManager.AddWorker();
+            baseManager.AddWorker();
+            baseManager.AddWorker();
+
         }
 
         public void Exit()

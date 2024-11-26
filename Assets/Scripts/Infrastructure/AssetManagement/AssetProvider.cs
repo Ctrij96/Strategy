@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using UnityEngine.UI;
 
 namespace Infrastructure.AssetManagement
 {
@@ -14,6 +15,12 @@ namespace Infrastructure.AssetManagement
         {
             var prefab = Resources.Load<GameObject>(path);
             return Object.Instantiate(prefab);
+        }
+
+        public GameObject Instantiate(string path, Vector3 at, Transform container)
+        {
+            var prefab = Resources.Load<GameObject>(path);
+            return Object.Instantiate(prefab, at, Quaternion.identity, container);
         }
     }
 }
